@@ -1,0 +1,26 @@
+# Create PowerShell variables
+$resourceGroup = "VMTutorialResources"
+$location = "eastus"
+
+az group create --name $resourceGroup --location $location
+
+# create PowerShell variables
+$vnetName = "TutorialVNet1"
+$subnetName = "TutorialSubnet1"
+$vnetAddressPrefix = "10.0.0.0/16"
+$subnetAddressPrefix = "10.0.0.0/24"
+
+# Use the existing resource group
+$resourceGroup = "VMTutorialResources"
+
+# Create a virtual network and subnet
+az network vnet create --name $vnetName --resource-group $resourceGroup --address-prefixes $vnetAddressPrefix --subnet-name $subnetName --subnet-prefixes $subnetAddressPrefix
+
+
+# Create PowerShell variable
+$vmName = "TutorialVM1"
+
+az vm create --resource-group $resourceGroup --name $vmName --image Ubuntu2204 --vnet-name $vnetName --subnet $subnetName --generate-ssh-keys --output json --verbose
+
+
+az vm show --name $vmName --resource-group $resourceGroup --query 'networkProfile.networkInterfaces[].id' --output tsv
