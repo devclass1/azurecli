@@ -1,0 +1,48 @@
+# Set variables
+location="eastus"
+resourceGroup="MyResourceGroup"
+vnetName="MyVNet"
+subnetName="MySubnet"
+addressPrefix="10.0.0.0/16"
+subnetPrefix="10.0.0.0/24"
+vmName="MyWindowsVM"
+adminUser="azureuser"
+adminPassword="P@ssw0rd1234!"  # Make sure it meets Azure's password complexity rules
+
+
+az group create --name $resourceGroup --location $location
+
+
+az network vnet create \
+  --resource-group $resourceGroup \
+  --name $vnetName \
+  --address-prefix $addressPrefix \
+  --subnet-name $subnetName \
+  --subnet-prefix $subnetPrefix
+
+
+az network public-ip create \
+  --resource-group $resourceGroup \
+  --name ${vmName}PublicIP
+
+az network nic create \
+  --resource-group $resourceGroup \
+  --name ${vmName}NIC \
+  --vnet-name $vnetName \
+  --subnet $subnetName \
+  --public-ip-address ${vmName}PublicIP
+
+az vm create \
+  --resource-group $resourceGroup \
+  --name $vmName \
+  --nics ${vmName}NIC \
+  --image Win2022Datacenter \
+  --admin-username $adminUser \
+  --admin-password $adminPassword \
+  --size Standard_DS1_v2 \
+  --no-wait
+
+az vm open-port \
+  --resource-group $resourceGroup \
+  --name $vmName \
+  --port 3389
